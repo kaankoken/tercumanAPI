@@ -1,0 +1,6 @@
+{
+    "env": {
+        "MONGO_ATLAS_PW": "metro2034",
+        "JWT_KEY": "imam_hatipler_kapatılsın"
+    }
+}
