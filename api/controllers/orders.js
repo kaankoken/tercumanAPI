@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const Order = require('../models/order');
 const Product  = require('../models/product');
+const ProductsControllers = require('../controllers/products');
 
 exports.orders_get_all = (req, res, next) => {
     Order.find()
@@ -95,10 +96,12 @@ exports.orders_get_order = (req, res, next) => {
         });
 };
 
-exports.orders_delete_order = (req, res, next) => {
-    Order.deleteOne({ _id: req.params.orderId})
+exports.orders_delete_order = ((req, res, next) => {
+    const id = req.params.orderId;
+ 
+    Order.deleteOne({ _id: id})
         .exec()
-        .then(result => {
+        .then(() => {
             res.status(200).json({
                 message: 'Order has removed',
                 request: {
@@ -108,5 +111,10 @@ exports.orders_delete_order = (req, res, next) => {
                 }
             })
         })
-        .catch();
-}
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                err: err
+            });
+        });
+});
