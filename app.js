@@ -7,6 +7,7 @@ const mongoose =  require('mongoose');
 const productRoutes = require('./api/route/products');
 const orderRoutes = require('./api/route/orders');
 const userRoutes = require('./api/route/user');
+const userDataRoutes = require('./api/route/userDatas');
 global.__rootdir = __dirname;  
 
 mongoose.connect('mongodb+srv://legolas:' + process.env.MONGO_ATLAS_PW + '@transappapi-hxo0m.mongodb.net/test?retryWrites=true', {
@@ -33,7 +34,7 @@ app.use((res, req, next) => {
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/user', userRoutes);
-
+app.use('/userdata', userDataRoutes);
 
 app.use((req, res, next) => {
     const error =  new Error('Not Found');
