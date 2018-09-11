@@ -21,17 +21,15 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
     //accept a file
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    if (file.mimetype === 'application/msword' || 
+    file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    file.mimetype === 'text/plain' || file.mimetype === 'application/vnd.oasis.opendocument.text' ||
+    file.mimetype === 'application/rtf' || file.mimetype === 'application/pdf') {
         cb(null, true);
     } else {
         //reject a file
         cb(null, false);
     }
-
-    //if (file.mimetype === 'application/msword' || 
-    //file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-    //file.mimetype === 'text/plain' || file.mimetype === 'application/vnd.oasis.opendocument.text' ||
-    //file.mimetype === 'application/rtf' || file.mimetype === 'application/pdf')
 };
 
 const upload = multer({
@@ -46,11 +44,11 @@ const Product = require('../models/product');
 
 router.get('/', ProductsControllers.products_get_all);
 
-router.post('/', checkAuth, upload.single('productImage'), ProductsControllers.products_create_product);
+router.post('/', checkAuth, upload.single('file'), ProductsControllers.products_create_product);
 
 router.get('/:productId', ProductsControllers.products_get_product);
 
-router.put('/:productId', checkAuth, upload.single('productImage'), ProductsControllers.products_update_product);
+router.put('/:productId', checkAuth, upload.single('file'), ProductsControllers.products_update_product);
 
 router.delete('/:productId', checkAuth, ProductsControllers.products_delete_product);
 
