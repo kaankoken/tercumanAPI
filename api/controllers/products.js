@@ -5,17 +5,18 @@ const fs =  require('fs');
 
 exports.products_get_all = (req, res, next) => {
     Product.find()
-        .select('name price _id productImage')
+        .select('_id sourceLanguage destinationLanguage unitPrice file')
         .exec()
         .then(docs => {
             const response = {
                 count:docs.length,
                 products: docs.map(doc => {
                     return  {
-                        name: doc.name,
-                        price: doc.price,
-                        productImage: doc.productImage,
                         _id: doc._id,
+                        sourceLanguage: doc.sourceLanguage,
+                        destinationLanguage: doc.destinationLanguage,
+                        unitPrice: doc.unitPrice,
+                        file: doc.file,
                         request: {
                             type: 'GET',
                             url: 'http://localhost:3000/products/' + doc._id
@@ -36,10 +37,9 @@ exports.products_get_all = (req, res, next) => {
 exports.products_get_product = (req, res, next) => {
     const id = req.params.productId;
     Product.findById(id)
-        .select('name price _id productImage')
+        .select('_id sourceLanguage destinationLanguage unitPrice file')
         .exec()
         .then(doc => {
-            console.log("From database " + doc);
             if (doc) {
                 res.status(200).json({
                     product: doc, 
@@ -51,7 +51,6 @@ exports.products_get_product = (req, res, next) => {
             } else {
                 res.status(404).json({message: "No valid entry"});
             }
-            res.status(200).json(doc);
         })
         .catch(err => {
             console.log(err);
@@ -63,9 +62,10 @@ exports.products_create_product = (req, res, next) => {
     
     const product =  new Product({
         _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        price: req.body.price,
-        productImage: req.file.filename,
+        sourceLanguage: req.body.sourceLanguage,
+        destinationLanguage: req.body.destinationLanguage,
+        unitPrice: req.body.unitPrice,
+        file: req.file.filename,
     });
     product
         .save()
@@ -74,10 +74,11 @@ exports.products_create_product = (req, res, next) => {
         res.status(201).json({
             message: 'Product Created Successfully',
             createdProduct: {
-                name: result.name,
-                price: result.price,
-                productImage: result.productImage,
                 _id: result._id,
+                sourceLanguage: result.sourceLanguage,
+                destinationLanguage: result.destinationLanguage,
+                unitPrice: result.unitPrice,
+                file: result.file,
                 request: {
                     type: 'GET',
                     url: 'http://localhost:3000/products/' + result._id
@@ -95,15 +96,15 @@ exports.products_create_product = (req, res, next) => {
 
 exports.products_update_product = (req, res, next) => {
     const id = req.params.productId;
-    var imageName = {};
+    var fileName = {};
 
     Product.findById(id)
-        .select('productImage')
+        .select('file')
         .exec()
         .then(docs => {
             if (typeof (req.file) !== "undefined") {
-                imageName = docs.productImage;
-                fs.unlink(__rootdir + '\\public\\uploads\\' + imageName, err => {
+                fileName = docs.file;
+                fs.unlink(__rootdir + '\\public\\uploads\\' + fileName, err => {
                     console.log(err);
                     if (err && err.code == 'ENOENT') {
                         console.info("File does not exist, will not update");
@@ -115,9 +116,10 @@ exports.products_update_product = (req, res, next) => {
             return Product.findById( {_id: id}).exec();
         })
         .then(doc => {
-            if (Object.keys(req.body.name).length > 0) {doc.name =  req.body.name;}
-            if (Object.keys(req.body.price).length > 0) {doc.price = req.body.price;}
-            if (typeof(req.file) !== "undefined") {doc.productImage = req.file.filename;}
+            if (Object.keys(req.body.sourceLanguage).length > 0) {doc.sourceLanguage =  req.body.sourceLanguage;}
+            if (Object.keys(req.body.destinationLanguage).length > 0) {doc.destinationLanguage =  req.body.destinationLanguage;}
+            if (Object.keys(req.body.unitPrice).length > 0) {doc.unitPrice = req.body.unitPrice;}
+            if (typeof(req.file) !== "undefined") {doc.file = req.file.filename;}
             doc.save(err => {
                 if (err) {
                     res.send(err);
@@ -135,14 +137,14 @@ exports.products_update_product = (req, res, next) => {
 
 exports.products_delete_product = (req, res, next) => {
     const id = req.params.productId;
-    var imageName = "";
+    var fileName = "";
 
     Product.findById(id)
-        .select('productImage')
+        .select('file')
         .exec()
         .then(docs => {
-            imageName = docs.productImage;
-            fs.unlink(__rootdir + "\\public\\uploads\\" + imageName, function (err) {
+            fileName = docs.file;
+            fs.unlink(__rootdir + "\\public\\uploads\\" + fileName, function (err) {
                 if (err && err.code == 'ENOENT') {
                     console.info("File does not exist, will not remove it.");
                 } else if (err) {
@@ -158,9 +160,10 @@ exports.products_delete_product = (req, res, next) => {
                     type: 'POST',
                     url: 'http://localhost:3000/products/',
                     body: {
-                        name: 'String',
-                        price: 'Number',
-                        productImage: 'String'
+                        sourceLanguage: 'String',
+                        destinationLanguage: 'String',
+                        unitPrice: 'Number',
+                        file: 'String'
                     }
                 }
             });

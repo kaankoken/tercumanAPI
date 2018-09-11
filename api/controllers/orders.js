@@ -2,11 +2,10 @@ const mongoose = require('mongoose');
 
 const Order = require('../models/order');
 const Product  = require('../models/product');
-const ProductsControllers = require('../controllers/products');
 
 exports.orders_get_all = (req, res, next) => {
     Order.find()
-        .select('product quantity _id')
+        .select('_id product wordCount totalPrice')
         .populate('product') // .populate('product', 'name') sınırlama yapmış oluyo, sadece ismi ekliyor
         .exec()
         .then(docs => {
@@ -16,7 +15,8 @@ exports.orders_get_all = (req, res, next) => {
                     return {
                         _id: doc._id,
                         product: doc.product,
-                        quantity: doc.quantity,
+                        wordCount: doc.wordCount,
+                        totalPrice: doc.totalPrice,
                         requests: {
                             type: 'GET',
                             url: 'http://localhost:3000/orders/' + doc._id
@@ -42,8 +42,9 @@ exports.orders_create_order =  (req, res, next) => {
             }
             const order =  new Order({
                 _id: mongoose.Types.ObjectId(),
-                quantity: req.body.quantity,
-                product: req.body.productId
+                product: req.body.productId,
+                wordCount: req.body.wordCount,
+                totalPrice: req.body.totalPrice
             });
             return order
                 .save()    
@@ -55,7 +56,8 @@ exports.orders_create_order =  (req, res, next) => {
                 createdOrder: {
                     _id: result._id,
                     product: result.product,
-                    quantity: result.quantity
+                    wordCount: result.wordCount,
+                    totalPrice: result.totalPrice
                 },
                 request: {
                     type: 'GET',
@@ -107,7 +109,7 @@ exports.orders_delete_order = ((req, res, next) => {
                 request: {
                     type: 'POST',
                     url: 'http://localhost:3000/orders/',
-                    body: { productId: 'ID', quantity: 'Number'}
+                    body: { productId: 'ID', wordCount: 'Number', totalPrice: 'Number'}
                 }
             })
         })
