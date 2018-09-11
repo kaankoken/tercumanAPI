@@ -46,8 +46,7 @@ exports.orders_create_order =  (req, res, next) => {
                 wordCount: req.body.wordCount,
                 totalPrice: req.body.totalPrice
             });
-            return order
-                .save()    
+            return order.save();    
         })
         .then(result => {
             console.log(result);
@@ -98,7 +97,7 @@ exports.orders_get_order = (req, res, next) => {
         });
 };
 
-exports.orders_delete_order = ((req, res, next) => {
+exports.orders_delete_order = (req, res, next) => {
     const id = req.params.orderId;
  
     Order.deleteOne({ _id: id})
@@ -119,4 +118,4 @@ exports.orders_delete_order = ((req, res, next) => {
                 err: err
             });
         });
-});
+};

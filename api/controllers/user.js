@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
-
 const User =  require('../models/user');
-
-const bcrypt =  require('bcrypt');
-const jwt =  require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 exports.user_signup = (req, res, next) => {
     User.find({email: req.body.email })
@@ -13,35 +11,40 @@ exports.user_signup = (req, res, next) => {
                 return res.status(409).json({
                     message: 'mail exist'
                 });
+            } else if (req.body.password !== req.body.confirmPassword) {
+                return res.status(409).json({
+                    message: 'Password does not match'
+                });
             } else {
                 bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if (err) {
-            return res.status(500).json({
-                error: err
-            });
-        } else {
-            const user =  new User({
-                _id: new mongoose.Types.ObjectId(),
-                name: req.body.name,
-                surname: req.body.surname,
-                email: req.body.email,
-                password: hash
-            });
-            user    
-                .save()
-                .then(result => {
-                    console.log(result);
-                    res.status(201).json({
-                        message: 'User created'
-                    });
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json({
-                        error: err
-                    });
+            if (err) {
+                return res.status(500).json({
+                    error: err
                 });
-        }
+            } else {
+                const user =  new User({
+                    _id: new mongoose.Types.ObjectId(),
+                    name: req.body.name,
+                    surname: req.body.surname,
+                    email: req.body.email,
+                    password: hash,
+                    userType: req.body.userType
+                });
+                user    
+                    .save()
+                    .then(result => {
+                        console.log(result);
+                        res.status(201).json({
+                            message: 'User created'
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({
+                            error: err
+                        });
+                    });
+                }
             });
         }
     });
@@ -86,7 +89,7 @@ exports.user_login = (req, res, next) => {
 
 exports.user_get_all = (req, res, next) => {
     User.find()
-        .select('_id name surname email password')
+        .select('_id name surname email password userType')
         .then(user => {
             var response = {
                 count: user.length,
@@ -97,6 +100,7 @@ exports.user_get_all = (req, res, next) => {
                         surname: doc.surname,
                         email: doc.email,
                         password: doc.password,
+                        userType: doc.userType,
                         request: {type: 'GET'}
                     }
                 })
