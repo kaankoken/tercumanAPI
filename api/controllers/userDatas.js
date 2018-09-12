@@ -3,7 +3,7 @@ const userDataModel = require('../models/userData');
 const User = require('../models/user');
 const Order = require('../models/order');
 
-exports.post = (req, res, next) => {
+exports.post_data = (req, res, next) => {
     User.findById(req.body.userId)
         .then(user => {
             if (!user) {
@@ -70,6 +70,51 @@ exports.get_all = (req, res, next) => {
                     }
                 })
             });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
+};
+
+exports.delete_data = (req, res, next) => {
+    const id = req.params.userId;
+    userDataModel.deleteOne({_id: id})
+        .exec()
+        .then(docs => {
+            res.status(200).json({
+                message: 'Record Deleted',
+                request: {
+                    type: 'POST'
+                }
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
+};
+
+exports.get_by_id = (req, res, next) => {
+    const id = req.params.userId;
+    userDataModel.findById(id)
+        .select('_id order')
+        .exec()
+        .then(doc => {
+            if (doc) {
+                res.status(200).json({
+                    userDetail: doc,
+                    request: {
+                        type: 'GET'
+                    }
+                });
+            } else {
+                res.status(404).json({message: 'not valid id'})
+            }
         })
         .catch(err => {
             console.log(err);

@@ -32,7 +32,7 @@ exports.products_get_all = (req, res, next) => {
                 err: err
             });
         });
-}
+};
 
 exports.products_get_product = (req, res, next) => {
     const id = req.params.productId;
@@ -60,13 +60,13 @@ exports.products_get_product = (req, res, next) => {
 
 exports.products_create_product = (req, res, next) => {
     
-    const product =  new Product({
-        _id: new mongoose.Types.ObjectId(),
-        sourceLanguage: req.body.sourceLanguage,
-        destinationLanguage: req.body.destinationLanguage,
-        unitPrice: req.body.unitPrice,
-        file: req.file.filename,
-    });
+        const product =  new Product({
+            _id: new mongoose.Types.ObjectId(),
+            sourceLanguage: req.body.sourceLanguage,
+            destinationLanguage: req.body.destinationLanguage,
+            unitPrice: req.body.unitPrice,
+            file: req.file.filename,
+        });
     product
         .save()
         .then(result => {
