@@ -8,12 +8,15 @@ const productRoutes = require('./api/route/products');
 const orderRoutes = require('./api/route/orders');
 const userRoutes = require('./api/route/user');
 const userDataRoutes = require('./api/route/userDatas');
+const languageRoutes = require('./api/route/languages');
+const cors = require('cors');
+
 global.__rootdir = __dirname;  
 
-mongoose.connect('mongodb+srv://legolas:' + process.env.MONGO_ATLAS_PW + '@transappapi-hxo0m.mongodb.net/test?retryWrites=true', {
+mongoose.connect('mongodb+srv://legolas:' + process.env.MONGO_ATLAS_PW + '@tercumanapi-hxo0m.gcp.mongodb.net/test?retryWrites=true', {
     useNewUrlParser: true
 });
-
+app.use(cors());
 app.use('/public/uploads', express.static('uploads'));
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
@@ -27,7 +30,6 @@ app.use((res, req, next) => {
         res.header('Access-Control-Allow-Methods', 'PUT, POST ,PATCH, DELETE, GET');
         return res.status(200).json({});
     }
-
     next();
 });
 
@@ -35,6 +37,7 @@ app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/user', userRoutes);
 app.use('/userdata', userDataRoutes);
+app.use('/language', languageRoutes);
 
 app.use((req, res, next) => {
     const error =  new Error('Not Found');
