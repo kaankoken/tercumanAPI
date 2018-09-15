@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
 const userDataModel = require('../models/userData');
 const User = require('../models/user');
 const Order = require('../models/order');
 
-exports.post_data = (req, res, next) => {
+exports.userData_post_data = (req, res, next) => {
     User.findById(req.body.userId)
         .then(user => {
             if (!user) {
@@ -46,14 +45,14 @@ exports.post_data = (req, res, next) => {
         });
 };
 
-exports.get_all = (req, res, next) => {
+exports.userData_get_all = (req, res, next) => {
     userDataModel
         .find()
         .populate('_id')
         .populate({
             path: 'order',
             populate: { 
-                path: 'product'
+                path: 'product',
             }
         })
         .exec()
@@ -79,7 +78,7 @@ exports.get_all = (req, res, next) => {
         });
 };
 
-exports.delete_data = (req, res, next) => {
+exports.userData_delete_data = (req, res, next) => {
     const id = req.params.userId;
     userDataModel.deleteOne({_id: id})
         .exec()
@@ -99,7 +98,7 @@ exports.delete_data = (req, res, next) => {
         });
 };
 
-exports.get_by_id = (req, res, next) => {
+exports.userData_get_by_id = (req, res, next) => {
     const id = req.params.userId;
     userDataModel.findById(id)
         .select('_id order')

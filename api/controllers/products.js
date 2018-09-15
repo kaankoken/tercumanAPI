@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
-
 const Product = require('../models/product');
+const Language = require('../models/language');
 const fs =  require('fs');
 
 exports.products_get_all = (req, res, next) => {
     Product.find()
-        .select('_id sourceLanguage destinationLanguage unitPrice file')
+        .select('_id srcLang destLang translationPrice file')
         .exec()
         .then(docs => {
             const response = {
-                count:docs.length,
+                productCount: docs.length.toString(),
                 products: docs.map(doc => {
                     return  {
                         _id: doc._id,
-                        sourceLanguage: doc.sourceLanguage,
-                        destinationLanguage: doc.destinationLanguage,
-                        unitPrice: doc.unitPrice,
+                        srcLang: doc.srcLang,
+                        destLang: doc.destLang,
+                        translationPrice: doc.translationPrice,
                         file: doc.file,
                         request: {
                             type: 'GET',
@@ -37,7 +37,7 @@ exports.products_get_all = (req, res, next) => {
 exports.products_get_product = (req, res, next) => {
     const id = req.params.productId;
     Product.findById(id)
-        .select('_id sourceLanguage destinationLanguage unitPrice file')
+        .select('_id srcLang destLang translationPrice file')
         .exec()
         .then(doc => {
             if (doc) {
@@ -59,46 +59,64 @@ exports.products_get_product = (req, res, next) => {
 };
 
 exports.products_create_product = (req, res, next) => {
-    
-        const product =  new Product({
-            _id: new mongoose.Types.ObjectId(),
-            sourceLanguage: req.body.sourceLanguage,
-            destinationLanguage: req.body.destinationLanguage,
-            unitPrice: req.body.unitPrice,
-            file: req.file.filename,
-        });
-    product
-        .save()
-        .then(result => {
-        console.log(result);
-        res.status(201).json({
-            message: 'Product Created Successfully',
-            createdProduct: {
-                _id: result._id,
-                sourceLanguage: result.sourceLanguage,
-                destinationLanguage: result.destinationLanguage,
-                unitPrice: result.unitPrice,
-                file: result.file,
-                request: {
-                    type: 'GET',
-                    url: 'http://localhost:3000/products/' + result._id
-                }
+    var srcPrice;
+    Language.find({language: req.body.srcLang})
+        .exec()
+        .then(src => {
+            if (src.length < 1) {
+                return res.status(404).json({
+                    message: 'language does not exist'
+                });
             }
+            srcPrice = src[0].unitPrice;
+            return Language.find({language: req.body.destLang}).exec();
+        })
+        .then(dest => {
+            if (dest.length < 1) {
+                return res.status(404).json({
+                    message: 'language does not exist'
+                });
+            }
+            const product =  new Product({
+                _id: new mongoose.Types.ObjectId(),
+                srcLang: req.body.srcLang,
+                destLang: req.body.destLang,
+                translationPrice: (srcPrice * dest[0].unitPrice),
+                file: req.file.filename,
+            });
+            product
+                .save()
+                .then(result => {
+                    console.log(result);
+                    res.status(201).json({
+                        message: 'Product Created Successfully',
+                        createdProduct: {
+                            _id: result._id,
+                            srcLang: result.srcLang,
+                            destLang: result.destLang,
+                            translationPrice: result.translationPrice,
+                            file: result.file,
+                            request: {
+                                type: 'GET',
+                                url: 'http://localhost:3000/products/' + result._id
+                            }
+                        }
+                    });
+                });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                err: err
+            });
         });
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            err: err
-        });
-    });
 };
 
-exports.products_update_product = (req, res, next) => {
+exports.products_update_product = (req, res, next) => { //dil değişimi ve fiyat değişimine bakılacak
     const id = req.params.productId;
     var fileName = {};
 
-    Product.findById(id)
+    Product.findById({_id: id})
         .select('file')
         .exec()
         .then(docs => {
@@ -113,12 +131,11 @@ exports.products_update_product = (req, res, next) => {
                     } else {}
                 });
             }
-            return Product.findById( {_id: id}).exec();
+            return Product.findById({_id: id}).exec();
         })
         .then(doc => {
-            if (Object.keys(req.body.sourceLanguage).length > 0) {doc.sourceLanguage =  req.body.sourceLanguage;}
-            if (Object.keys(req.body.destinationLanguage).length > 0) {doc.destinationLanguage =  req.body.destinationLanguage;}
-            if (Object.keys(req.body.unitPrice).length > 0) {doc.unitPrice = req.body.unitPrice;}
+            if (Object.keys(req.body.srcLang).length > 0) {doc.srcLang =  req.body.srcLang;}
+            if (Object.keys(req.body.destLang).length > 0) {doc.destLang =  req.body.destLang;}
             if (typeof(req.file) !== "undefined") {doc.file = req.file.filename;}
             doc.save(err => {
                 if (err) {
@@ -132,6 +149,12 @@ exports.products_update_product = (req, res, next) => {
                     }
                 });
             });       
+        })
+        .catch(err => {
+            console.log(err);
+            res.staus(500).json({
+                error: err
+            });
         });
 };
 
@@ -160,9 +183,9 @@ exports.products_delete_product = (req, res, next) => {
                     type: 'POST',
                     url: 'http://localhost:3000/products/',
                     body: {
-                        sourceLanguage: 'String',
-                        destinationLanguage: 'String',
-                        unitPrice: 'Number',
+                        srcLang: 'String',
+                        destLang: 'String',
+                        translationPrice: 'Number',
                         file: 'String'
                     }
                 }

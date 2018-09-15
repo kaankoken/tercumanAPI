@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
-
 const Order = require('../models/order');
 const Product  = require('../models/product');
 
 exports.orders_get_all = (req, res, next) => {
     Order.find()
         .select('_id product wordCount totalPrice')
-        .populate('product') // .populate('product', 'name') sınırlama yapmış oluyo, sadece ismi ekliyor
+        .populate('product')
         .exec()
         .then(docs => {
             res.status(200).json({
@@ -33,18 +32,19 @@ exports.orders_get_all = (req, res, next) => {
 };
 
 exports.orders_create_order =  (req, res, next) => {
-    Product.findById(req.body.productId)
+    Product.findById({_id: req.body.productId})
         .then(product => {
             if (!product) {
                 return res.status(404).json({
                     message: 'Product Not Found'
                 });
             }
+            console.log(product.translationPrice    );
             const order =  new Order({
-                _id: mongoose.Types.ObjectId(),
+                _id: new mongoose.Types.ObjectId(),
                 product: req.body.productId,
                 wordCount: req.body.wordCount,
-                totalPrice: req.body.totalPrice
+                totalPrice: req.body.wordCount * product.translationPrice
             });
             return order.save();    
         })
