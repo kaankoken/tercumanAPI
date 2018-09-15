@@ -40,16 +40,10 @@ const upload = multer({
     fileFilter: fileFilter,
 });
 
-const Product = require('../models/product');
-
 router.get('/', ProductsControllers.products_get_all);
-
 router.post('/', checkAuth, upload.single('file'), ProductsControllers.products_create_product);
-
 router.get('/:productId', ProductsControllers.products_get_product);
-
 router.put('/:productId', checkAuth, upload.single('file'), ProductsControllers.products_update_product);
-
 router.delete('/:productId', checkAuth, ProductsControllers.products_delete_product);
 
 module.exports = router;
