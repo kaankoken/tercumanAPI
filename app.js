@@ -7,7 +7,6 @@ const mongoose =  require('mongoose');
 const productRoutes = require('./api/route/products');
 const orderRoutes = require('./api/route/orders');
 const userRoutes = require('./api/route/user');
-const userDataRoutes = require('./api/route/userDatas');
 const languageRoutes = require('./api/route/languages');
 const cors = require('cors');
 
@@ -36,7 +35,6 @@ app.use((res, req, next) => {
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/user', userRoutes);
-app.use('/userdata', userDataRoutes);
 app.use('/language', languageRoutes);
 
 app.use((req, res, next) => {
