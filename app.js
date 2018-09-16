@@ -8,6 +8,7 @@ const productRoutes = require('./api/route/products');
 const orderRoutes = require('./api/route/orders');
 const userRoutes = require('./api/route/user');
 const languageRoutes = require('./api/route/languages');
+const userRoleRoutes = require('./api/route/user_roles');
 const cors = require('cors');
 
 global.__rootdir = __dirname;  
@@ -36,6 +37,7 @@ app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
 app.use('/user', userRoutes);
 app.use('/language', languageRoutes);
+app.use('/role', userRoleRoutes);
 
 app.use((req, res, next) => {
     const error =  new Error('Not Found');
