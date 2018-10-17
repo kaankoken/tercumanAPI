@@ -3,7 +3,7 @@ const Order = require('../models/order');
 const Product  = require('../models/product');
 const mammoth =  require('mammoth');
 var pdfUtil = require('pdf-to-text');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 exports.orders_get_all = (req, res, next) => {
     Order.find()

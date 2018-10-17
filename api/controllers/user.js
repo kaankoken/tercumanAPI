@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const UserRole = require('../models/user_role');
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 
@@ -26,7 +26,7 @@ exports.user_signup = (req, res, next) => {
                             message: 'user type not found'
                         });
                     } else {
-                        bcrypt.hash(req.body.password, 10, (err, hash) => {
+                        bcryptjs.hash(req.body.password, 10, (err, hash) => {
                             if (err) {
                                 return res.status(500).json({
                                     error: err
@@ -71,7 +71,7 @@ exports.user_login = (req, res, next) => {
                     message: 'Mail does not found, user does not exist'
                 });
             }
-            bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+            bcryptjs.compare(req.body.password, user[0].password, (err, result) => {
                 if (err) {
                     return res.status(401).json({
                         message: 'auth fail'

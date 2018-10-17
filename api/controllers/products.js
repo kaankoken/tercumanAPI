@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Product = require('../models/product');
 const Language = require('../models/language');
-const fs =  require('fs');
+const fs =  require('fs-extra');
 
 exports.products_get_all = (req, res, next) => {
     Product.find()
